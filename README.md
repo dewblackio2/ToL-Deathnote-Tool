@@ -14,16 +14,17 @@ While only the .au3 file is approved, use the executable at your own risk.
 **Using this software to draw any form of obscurities or NSFW content on your deathnote, will result in a flag against your Throne of       Lies account and may result in a permanent suspension. By using this application, you agree to these terms.**
 
 ### Download Instructions
-**Exe Version:**
+**Exe Version (64 Bit):**
 1. Download ToLDeathnoteTool.exe
 2. Run the File.
 
-**Auto It Version:**
+**Auto It Version (32 & 64 Bit):**
 1. Download Auto It From Here: [Auto It v3](https://www.autoitscript.com/cgi-bin/getfile.pl?autoit3/autoit-v3-setup.exe)
 2. After Installing, Download ToLDeathnoteTool.au3
 3. Run TolDeathnoteTool.au3
 
 ### How To Use
+**It is best to (test / Get used to the tool) using microsoft paint before going in game!** 
 1. Follow the download instructions above for your desired version.
 2. Once downloaded, search for an image you want to draw (JPG, JPEG, GIF) are supported.
    - PNG files, and animated GIF files will not work.
@@ -35,29 +36,40 @@ While only the .au3 file is approved, use the executable at your own risk.
 7. The first step is to Press 'Open' in the bottom left, and open the image you want to draw
 8. Once you open the image the display will look like this (with the image you selected):
    ![image](https://i.gyazo.com/673e05dcbe2dcc857165eaa39146f7ea.png)
-9. Next, you want to edit the image size in pixels, width/height, **ToL Deathnote is 935 pixels wide**
+9. Next, you want to edit the image size in pixels, width/height, **ToL Deathnote is 935 pixels wide**:
+   ![image](https://i.gyazo.com/b5a46b8e67ad3962d37895ab6df8dbef.png)
 10. Now choose your Drawing Pattern and Mouse Speed:
    
    ![image](https://i.gyazo.com/6ecb3c2672f4d104e1a29873fabbd0e4.png)
 
 11. Next adjust the Color Settings to suit your image, **Threshold is used to remove parts of the image that fall within a specified color range.** (Using Colors takes a lot longer to process due to the color comparission, if you just want to draw with black, dont enable any colors)
    ![image](https://i.gyazo.com/7f773e4b0afe4521bd63eadd41e06330.png)
-12. Once you apply your desired settings, and want to process the image to see what it will look like when drawn, **press Apply** (When Apply is Pressed the Main GUI will not be able to recieve any commands until the processing phase is completed)
+12. Once you set your desired settings, and want to process the image to see what it will look like when drawn, **press Apply** (When Apply is Pressed the Main GUI will not be able to recieve any commands until the processing phase is completed)
+   ![image](https://i.gyazo.com/0b44cf0211e4e48550341f0d5ad584a2.png)
+13. After the image finishes processing, you can either re-adjust/tweak the settings if you dont like what you see, **Once you change the settings again you need to hit Apply again to re-process the image with new settings!**
+14. Now that we have our image ready to go, all you need to do is first, **check the Draw Image Size checkbox to display the border of the drawing to make sure it fits within the deathnote**
+15. Next, Open microsoft paint, and **once you want to start the drawing process, Press F9**:
 
-```markdown
-Syntax highlighted code block
+   ![image](https://i.gyazo.com/2608b630131686a2c3c356bdb4c0fbdd.png)
 
-# Header 1
-## Header 2
-### Header 3
+16. Once F9 is pressed, and the mouse follows the square pattern around the border, the position is locked and this window should appear:
 
-- Bulleted
-- List
+   ![image](https://i.gyazo.com/862e1b031fc2c85b4d47a1db65779633.png)
 
-1. Numbered
-2. List
+17. **The pause key is VERY important! Since this program controls your mouse, use F8 to pause / resume the draw to regain control of your mouse while in game!** After Pressing OK on that window, you will see notifications like this appear in your bottom right hand corner of the screen:
+   ```markdown
+   **Press F7 To Skip Color**
+   Please Select BLUE, and press F6 to continue!
+   ```
+18. During these "Splits" (I call them), the script will not draw the color listed, until you press F6 to continue.
+19. Now just follow the steps in the notifications to finish the drawing and when you're done you can press Reset to draw a different image, or if you want the same one again just Press F9 again, or if you want the same Image with different settings, just change your settings, hit Apply, and once its done processing press F9 to draw :P
+   ![image](https://i.gyazo.com/a357ee8059cc49128996c800bfd97a3f.png)
+   
+### I Hope you Enjoy Using my Deathnote Tool! I put a LOT of time and effort into it! Cheers!
 
-**Bold** and _Italic_ and `Code` text
+### Contact Me:
+**Discord**: Dewblackio2#6950
+**Email**: dewblackio2@gmail.com
 
-[Link](url) and ![Image](src)
-```
+Special Thanks to the ToL Moderation Team, and the i42 Team for not only making a great game for us to enjoy, but supporting me by giving me permission to release this project to the public <3
+
