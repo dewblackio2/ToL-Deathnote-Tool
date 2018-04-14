@@ -73,3 +73,7 @@ While only the .au3 file is approved, use the executable at your own risk.
 
 Special Thanks to the ToL Moderation Team, and the i42 Team for not only making a great game for us to enjoy, but supporting me by giving me permission to release this project to the public <3
 
+
+### Example of Images Drawn In The Past In Game:
+![image](https://i.gyazo.com/f581d41d4e6cbf7007d257cee1ae5465.jpg)
+![image](https://i.gyazo.com/f708d7e7f467242c3c0fc0fcdfab323a.jpg)
