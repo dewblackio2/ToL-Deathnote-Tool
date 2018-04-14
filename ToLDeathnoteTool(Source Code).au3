@@ -27,6 +27,8 @@
 #include <misc.au3>
 #include <MsgBoxConstants.au3>
 
+MsgBox($MB_ICONWARNING, "Warning", "Using this software to draw any form of obscurities or NSFW content on your deathnote, will result in a flag against your Throne of Lies account and may result in a permanent suspension. By using this application, you agree to these terms.")
+
 ;Initialize Global Variables
 Global $hWin
 Global $aPos
@@ -686,6 +688,7 @@ Func Draw ()
    MouseMove ($x0, $y0 + $height)
    MouseMove ($x0, $y0)
 
+   MsgBox($MB_ICONINFORMATION, "Important Information", "F8 = Pause / Unpause Draw" & @LF & @LF & "Please be sure to pause the drawing if the deathnote is force closed, or if you need to be able to move the mouse!")
    $stack = CreateStack (1000)
    For $i = 1 To 7
 	  If $foundColors[$i] == true And $useColor[$i] == true then
