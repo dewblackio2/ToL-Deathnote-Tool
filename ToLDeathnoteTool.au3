@@ -61,20 +61,20 @@ Global $skipColor = False
 
 ;prevent program from running if main hotkeys are bound to something
 If (Not HotKeySet ("{F9}", "Nothing")) Then
-	MsgBox (16, "Error", "Could not register the F9 hotkey.")
-	Exit
+   MsgBox (16, "Error", "Could not register the F9 hotkey.")
+   Exit
 EndIf
 If (Not HotKeySet ("{F10}", "Nothing")) Then
-	MsgBox (16, "Error", "Could not register the F10 hotkey.")
-	Exit
+   MsgBox (16, "Error", "Could not register the F10 hotkey.")
+   Exit
 EndIf
 If (Not HotKeySet ("{F8}", "Nothing")) Then
-	MsgBox (16, "Error", "Could not register the F8 hotkey.")
-	Exit
+   MsgBox (16, "Error", "Could not register the F8 hotkey.")
+   Exit
  EndIf
 If (Not HotKeySet ("{F7}", "Nothing")) Then
-	MsgBox (16, "Error", "Could not register the F7 hotkey.")
-	Exit
+   MsgBox (16, "Error", "Could not register the F7 hotkey.")
+   Exit
 EndIf
 If (Not HotKeySet ("{F6}", "Nothing")) Then
    MsgBox (16, "Error", "Could not register the F6 hotkey.")
