@@ -36,7 +36,7 @@ While only the .au3 file is approved, use the executable at your own risk.
 7. The first step is to Press 'Open' in the bottom left, and open the image you want to draw
 8. Once you open the image the display will look like this (with the image you selected):
    ![image](https://i.gyazo.com/673e05dcbe2dcc857165eaa39146f7ea.png)
-9. Next, you want to edit the image size in pixels, width/height, **ToL Deathnote is 935 pixels wide**:
+9. Next, you want to edit the image size in pixels, width/height, **ToL Deathnote is (1440p): 935 pixels wide, (1080p): 700 pixels wide**:
    ![image](https://i.gyazo.com/b5a46b8e67ad3962d37895ab6df8dbef.png)
 10. Now choose your Drawing Pattern and Mouse Speed:
 
