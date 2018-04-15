@@ -39,15 +39,22 @@ While only the .au3 file is approved, use the executable at your own risk.
 9. Next, you want to edit the image size in pixels, width/height, **ToL Deathnote is 935 pixels wide**:
    ![image](https://i.gyazo.com/b5a46b8e67ad3962d37895ab6df8dbef.png)
 10. Now choose your Drawing Pattern and Mouse Speed:
-   
-   ![image](https://i.gyazo.com/6ecb3c2672f4d104e1a29873fabbd0e4.png)
 
+   ![image](https://i.gyazo.com/6ecb3c2672f4d104e1a29873fabbd0e4.png)
+   ![image](https://i.gyazo.com/eb8c35d1151a35e84fd52964a5c4ee5b.png)
+   
 11. Next adjust the Color Settings to suit your image, **Threshold is used to remove parts of the image that fall within a specified color range.** (Using Colors takes a lot longer to process due to the color comparission, if you just want to draw with black, dont enable any colors)
+
    ![image](https://i.gyazo.com/7f773e4b0afe4521bd63eadd41e06330.png)
+   
 12. Once you set your desired settings, and want to process the image to see what it will look like when drawn, **press Apply** (When Apply is Pressed the Main GUI will not be able to recieve any commands until the processing phase is completed)
+
    ![image](https://i.gyazo.com/0b44cf0211e4e48550341f0d5ad584a2.png)
+   
 13. After the image finishes processing, you can either re-adjust/tweak the settings if you dont like what you see, **Once you change the settings again you need to hit Apply again to re-process the image with new settings!**
+
 14. Now that we have our image ready to go, all you need to do is first, **check the Draw Image Size checkbox to display the border of the drawing to make sure it fits within the deathnote**
+
 15. Next, Open microsoft paint, and **once you want to start the drawing process, Press F9**:
 
    ![image](https://i.gyazo.com/2608b630131686a2c3c356bdb4c0fbdd.png)
