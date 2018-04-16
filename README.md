@@ -1,5 +1,8 @@
 # Throne Of Lies Deathnote Tool
 ### Created By: Dewblackio2
+
+[Video Tutorial](https://www.youtube.com/watch?v=opilGC-c_n0)
+
 [Donate to Support My Work <3](http://www.paypal.me/Dewblackio2)
 
 ```markdown
