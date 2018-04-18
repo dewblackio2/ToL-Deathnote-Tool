@@ -26,13 +26,33 @@
 #include <APIConstants.au3>
 #include <misc.au3>
 #include <MsgBoxConstants.au3>
+#include <GDIPlus.au3>
 
-MsgBox($MB_ICONWARNING, "Warning", "Using this software to draw any form of obscurities or NSFW content on your deathnote, will result in a flag against your Throne of Lies account and may result in a permanent suspension. By using this application, you agree to these terms.")
+MsgBox($MB_ICONWARNING, "Warning", "Using this software to draw any form of obscenities or NSFW content on your deathnote, will result in a flag against your Throne of Lies account and may result in a permanent suspension. By using this application, you agree to these terms.")
+
+Global $currentVersion = "1.2"
+Global $configFile = (@ScriptDir & "\ToLDNConfig.ini")
+
+InetGet("http://raw.githubusercontent.com/dewblackio2/ToL-Deathnote-Tool/master/Version.txt", @ScriptDir & "\Version.txt")
+$versionCheck = FileReadLine(@ScriptDir & "\Version.txt")
+If $versionCheck <> $currentVersion Then
+   If MsgBox(262209, "ToL Deathnote Tool", "Update Available!" & @CRLF & "Current Version: " & $currentVersion & " | Update Version: " & $versionCheck & @CRLF & @CRLF & "Press 'OK' to Download") = 1 Then
+	  FileDelete(@ScriptDir & "\Version.txt")
+	  ShellExecute("http://github.com/dewblackio2/ToL-Deathnote-Tool/archive/master.zip")
+	  MsgBox($MB_ICONINFORMATION, "ToL Deathnote Tool", "New version downloaded." & @CRLF & "Please check your browsers download destination folder for the archive file." & @CRLF & @CRLF & "Script will now exit.", 20)
+	  Exit
+   EndIf
+EndIf
+FileDelete(@ScriptDir & "\Version.txt")
 
 ;Initialize Global Variables
 Global $hWin
 Global $aPos
 Global $imageBox
+Global $imageWD
+Global $imageHD
+Global $origWidth
+Global $origHeight
 Global $GUI
 Global $bPos
 Global $dc
@@ -82,11 +102,13 @@ If (Not HotKeySet ("{F6}", "Nothing")) Then
 EndIf
 
 ;[] Main Settings Window [] (i never want to make a GUI by hand ever again -.-)
-$optGUI = GUICreate ("ToL Deathnote Tool", 1000, 700, -1, -1, -1)
+$optGUI = GUICreate ("ToL Deathnote Tool v" & $currentVersion, 1550, 731, -1, -1, -1)
 
-$imageDisplay = GUICtrlCreatePic ("", 480, 16, 500, 600, $WS_BORDER)
-$donateBtn = GUICtrlCreateButton("♥♥ Donate To Support My Work ♥♥", 480, 640, 500, 35)
+$imageDisplay = GUICtrlCreatePic ("", 470, 16, 1065, 599, $WS_BORDER + $SS_CENTERIMAGE)
+;$donateBtn = GUICtrlCreateButton("♥♥ Donate To Support My Work ♥♥", 480, 640, 500, 35)
+$donateBtn = GUICtrlCreateButton("♥♥ Donate To Support My Work ♥♥", 16, 680, 435, 35)
 GUICtrlSetFont(-1, 12)
+GUICtrlSetResizing (-1, $GUI_DOCKALL)
 
 GUICtrlCreateGroup("Image Settings", 16, 16, 185, 185, BitOR ($GUI_SS_DEFAULT_GROUP,$BS_CENTER)) ;width height and option to show picture size around mouse once processing done
 GUICtrlSetFont(-1, 10)
@@ -94,18 +116,20 @@ GUICtrlSetResizing (-1, $GUI_DOCKALL)
 GUICtrlCreateLabel("Width (px):", 24, 45, 80, 25)
 GUICtrlSetFont(-1, 10)
 GUICtrlSetResizing (-1, $GUI_DOCKALL)
-$widthInput = GUICtrlCreateInput ("500", 120, 45, 50, 20, $ES_NUMBER)
+$widthInput = GUICtrlCreateInput ("0", 120, 45, 50, 20, $ES_NUMBER)
 GUICtrlSetResizing (-1, $GUI_DOCKALL)
+GUICtrlSetState(-1, $GUI_DISABLE)
 GUICtrlCreateLabel("Height (px):", 24, 85, 80, 25)
 GUICtrlSetFont(-1, 10)
 GUICtrlSetResizing (-1, $GUI_DOCKALL)
-$heightInput = GUICtrlCreateInput ("600", 120, 85, 50, 20, $ES_NUMBER)
+$heightInput = GUICtrlCreateInput ("0", 120, 85, 50, 20, $ES_NUMBER)
 GUICtrlSetResizing (-1, $GUI_DOCKALL)
+GUICtrlSetState(-1, $GUI_DISABLE)
 $showRect = GUICtrlCreateCheckbox ("Draw Image Size? ", 24, 125, 135, 25, BitOR ($GUI_SS_DEFAULT_CHECKBOX,$BS_RIGHTBUTTON))
 GUICtrlSetFont($showRect, 10)
 GUICtrlSetResizing (-1, $GUI_DOCKALL)
 GUICtrlSetState(-1, $GUI_DISABLE)
-GUICtrlCreateLabel("(Un-Check/Re-Check to Refresh Rectangle Width/Height)", 24, 155, 170, 30)
+GUICtrlCreateLabel("(Enables After Pressing Apply)", 24, 155, 170, 30)
 GUICtrlSetColor(-1, 0x960000)
 GUICtrlSetResizing (-1, $GUI_DOCKALL)
 GUICtrlCreateGroup("", -99, -99, 1, 1)
@@ -158,7 +182,7 @@ GUICtrlSetBkColor(-1, 0x000000)
 GUICtrlSetResizing (-1, $GUI_DOCKALL)
 GUICtrlCreateLabel("Threshold (0-255): ", 284, 62, 90, 20)
 GUICtrlSetResizing (-1, $GUI_DOCKALL)
-$blackThresh = GUICtrlCreateInput("100", 375, 59, 49, 24, $ES_NUMBER)
+$blackThresh = GUICtrlCreateInput("230", 375, 59, 49, 24, $ES_NUMBER)
 GUICtrlSetResizing (-1, $GUI_DOCKALL)
 GUICtrlCreateGroup("", -99, -99, 1, 1)
 GUICtrlCreateLabel("Using Colors Takes Longer!", 240, 96, 197, 20)
@@ -289,6 +313,25 @@ $exitBtn = GUICtrlCreateButton("Exit", 352, 640, 99, 33) ;Exit
 GUICtrlSetResizing (-1, $GUI_DOCKALL)
 GUISetState ()
 
+if FileExists($configFile) Then
+   $patternSelect = IniRead($configFile, "Settings", "Pattern", "diagonal")
+   If $patternSelect == "horizontal" Then
+	  GUICtrlSetState ($horizontalRadio, $GUI_CHECKED)
+   ElseIf $patternSelect == "vertical" Then
+	  GUICtrlSetState ($verticalRadio, $GUI_CHECKED)
+   ElseIf $patternSelect == "diagonal" Then
+	  GUICtrlSetState ($diagonalRadio, $GUI_CHECKED)
+   ElseIf $patternSelect == "spiral" Then
+	  GUICtrlSetState ($rotateRadio, $GUI_CHECKED)
+   ElseIf $patternSelect == "random" Then
+	  GUICtrlSetState ($scrambleRadio, $GUI_CHECKED)
+   EndIf
+   $speedSelect = IniRead($configFile, "Settings", "Speed", "5")
+   GUICtrlSetData($speedInput, $speedSelect)
+   $blackSelect = IniRead($configFile, "Settings", "BlackThreshold", "230")
+   GUICtrlSetData($blackThresh, $blackSelect)
+EndIf
+
 ;Main Gui Control Messages
 While 1
    If $drawFrame == true Then
@@ -297,17 +340,49 @@ While 1
 	  WinMove($hWin, "", $aMouse[0] - $aPos[2] / 2, $aMouse[1] - $aPos[3] / 2)
    EndIf
    Switch (GUIGetMsg ())
+	  Case $widthInput
+		 GUICtrlSetData($heightInput, int(($origHeight / $origWidth) * GUICtrlRead($widthInput)))
+	  Case $heightInput
+		 GUICtrlSetData($widthInput, int(($origWidth / $origHeight) * GUICtrlRead($heightInput)))
 	  Case $GUI_EVENT_CLOSE, $exitBtn
+		 UpdateConfig()
 		 Exit
 	  Case $donateBtn
 		 Shellexecute("http://www.paypal.me/Dewblackio2")
 	  Case $openBtn
+		 Local $GDIImage
 		 $imageFile = FileOpenDialog ("Open Image", @WorkingDir, "Images (*.jpg;*.jpeg;*.gif;*.bmp)", 1) ;png is not supported in auto it function :c
 		 If (@error) Then Exit
+		 _GDIPlus_Startup()
+		 $GDIImage = _GDIPlus_ImageLoadFromFile($imageFile)
+		 $imageWD = _GDIPlus_ImageGetWidth($GDIImage)
+		 $imageHD = _GDIPlus_ImageGetHeight($GDIImage)
+		 _GDIPlus_ImageDispose($GDIImage)
+		 _GDIPlus_Shutdown()
+		 GUICtrlSetState($widthInput, $GUI_ENABLE)
+		 GUICtrlSetState($heightInput, $GUI_ENABLE)
+		 $origWidth = $imageWD
+		 $origHeight = $imageHD
+		 GUICtrlSetData($widthInput, $imageWD)
+		 GUICtrlSetData($heightInput, $imageHD)
+		 Local $factorVar = 1
+		 If $imageWD > 1065 Or $imageHD > 599 Then
+			$imageWD = $imageWD * (599 / $imageHD)
+			$factorVar = 599 / $imageHD
+			$imageHD = 599
+			If $imageWD > 1065 Then
+			   $imageHD = $imageHD * (1065 / $imageWD)
+			   $factorVar = 1065 / $imageWD
+			   $imageWD = 1065
+			EndIf
+		 EndIf
+		 $imageWD = int($imageWD)
+		 $imageHD = int($imageHD)
+		 GUICtrlSetPos($imageDisplay, 470, 16, $imageWD, $imageHD)
 		 GUICtrlSetImage ($imageDisplay, $imageFile)
+		 GUICtrlSetPos($imageDisplay, 470, 16, 1065, 599)
 		 GUICtrlSetState($openBtn, $GUI_DISABLE)
 		 GUICtrlSetState($okBtn, $GUI_ENABLE)
-		 GUICtrlSetState($showRect, $GUI_ENABLE)
 		 GUICtrlSetState($resetBtn, $GUI_ENABLE)
 	  Case $showRect
 		 If (GUICtrlRead ($showRect) == $GUI_CHECKED) And $drawing == 0 And $drawFrame == false Then
@@ -324,6 +399,7 @@ While 1
 			EndIf
 		 EndIf
 	  Case $resetBtn
+		 UpdateConfig()
 		 HotKeySet ("{F9}")
 		 HotKeySet ("{F10}")
 		 HotKeySet ("{F8}")
@@ -336,95 +412,108 @@ While 1
 		 EndIf
 		 Exit
 	  Case $okBtn
-		 HotKeySet ("{F9}")
-		 HotKeySet ("{F10}")
-		 HotKeySet ("{F8}")
-		 HotKeySet ("{F7}")
-		 HotKeySet ("{F6}")
-		 $pixelHolder = False
-		 $skipColor = False
-		 $scriptPause = False
-		 $drawing = 0
-		 $bPos = WinGetPos($optGUI)
-		 GUICtrlDelete($imageDisplay)
-		 GUICtrlDelete($donateBtn)
-		 WinMove($optGUI, "", $bPos[0], $bPos[1], 500, 729)
-		 For $j = 1 To 8
-			$useColor[$j] = false
-		 Next
-		 For $n = 0 To 8
-			$foundColors[$n] = false
-		 Next
-		 $thresholds[0] = GUICtrlRead ($blackThresh)
-		 $thresholds[1] = GUICtrlRead ($yellowThresh)
-		 $thresholds[2] = GUICtrlRead ($blueThresh)
-		 $thresholds[3] = GUICtrlRead ($pinkThresh)
-		 $thresholds[4] = GUICtrlRead ($whiteThresh)
-		 $thresholds[5] = GUICtrlRead ($redThresh)
-		 $thresholds[6] = GUICtrlRead ($greenThresh)
-		 $thresholds[7] = GUICtrlRead ($purpleThresh)
-		 $width = GUICtrlRead ($widthInput)
-		 $height = GUICtrlRead ($heightInput)
-		 $speedMouse = GUICtrlRead ($speedInput)
-		 If (GUICtrlRead ($yellowDet) == $GUI_CHECKED) Then
-			$useColor[1] = true
-		 EndIf
-		 If (GUICtrlRead ($blueDet) == $GUI_CHECKED) Then
-			$useColor[2] = true
-		 EndIf
-		 If (GUICtrlRead ($pinkDet) == $GUI_CHECKED) Then
-			$useColor[3] = true
-		 EndIf
-		 If (GUICtrlRead ($whiteDet) == $GUI_CHECKED) Then
-			$useColor[4] = true
-		 EndIf
-		 If (GUICtrlRead ($redDet) == $GUI_CHECKED) Then
-			$useColor[5] = true
-		 EndIf
-		 If (GUICtrlRead ($greenDet) == $GUI_CHECKED) Then
-			$useColor[6] = true
-		 EndIf
-		 If (GUICtrlRead ($purpleDet) == $GUI_CHECKED) Then
-			$useColor[7] = true
-		 EndIf
-		 If	(GUICtrlRead ($horizontalRadio) == $GUI_CHECKED) Then
-			$pathString = "45273618"
-		 ElseIf (GUICtrlRead ($verticalRadio) == $GUI_CHECKED) Then
-			$pathString = "27453618"
-		 ElseIf (GUICtrlRead ($diagonalRadio) == $GUI_CHECKED) Then
-			$pathString = "36184527"
-		 ElseIf (GUICtrlRead ($rotateRadio) == $GUI_CHECKED) Then
-			$pathString = "14678532"
-			$rotate = 1
-		 ElseIf (GUICtrlRead ($scrambleRadio) == $GUI_CHECKED) Then
-			$scramble = True
-		 EndIf
-		 If (GUICtrlRead ($showRect) == $GUI_CHECKED) Then
-			GUICtrlSetState ($showRect, $GUI_UNCHECKED)
-			$drawFrame = False
-			GUIDelete ($hWin)
-		 EndIf
-		 GUISetState (@SW_DISABLE, $optGUI)
-		 If WinExists("Processing image...") Then
-			GUIDelete($GUI)
-		 EndIf
+		 UpdateConfig()
+		 if GUICtrlRead ($widthInput) > @DesktopWidth Or GUICtrlRead ($heightInput) > @DesktopHeight Then
+			MsgBox($MB_ICONWARNING, "Error", "Image Size Exceeds Desktop Display Size!")
+		 Else
+			HotKeySet ("{F9}")
+			HotKeySet ("{F10}")
+			HotKeySet ("{F8}")
+			HotKeySet ("{F7}")
+			HotKeySet ("{F6}")
+			$pixelHolder = False
+			$skipColor = False
+			$scriptPause = False
+			$drawing = 0
+			$bPos = WinGetPos($optGUI)
+			GUICtrlDelete($imageDisplay)
+			;GUICtrlDelete($donateBtn)
+			WinMove($optGUI, "", $bPos[0], $bPos[1], 500, 760)
+			For $j = 1 To 8
+			   $useColor[$j] = false
+			Next
+			For $n = 0 To 8
+			   $foundColors[$n] = false
+			Next
+			$thresholds[0] = GUICtrlRead ($blackThresh)
+			$thresholds[1] = GUICtrlRead ($yellowThresh)
+			$thresholds[2] = GUICtrlRead ($blueThresh)
+			$thresholds[3] = GUICtrlRead ($pinkThresh)
+			$thresholds[4] = GUICtrlRead ($whiteThresh)
+			$thresholds[5] = GUICtrlRead ($redThresh)
+			$thresholds[6] = GUICtrlRead ($greenThresh)
+			$thresholds[7] = GUICtrlRead ($purpleThresh)
+			$width = GUICtrlRead ($widthInput)
+			$height = GUICtrlRead ($heightInput)
+			$speedMouse = GUICtrlRead ($speedInput)
+			If (GUICtrlRead ($yellowDet) == $GUI_CHECKED) Then
+			   $useColor[1] = true
+			EndIf
+			If (GUICtrlRead ($blueDet) == $GUI_CHECKED) Then
+			   $useColor[2] = true
+			EndIf
+			If (GUICtrlRead ($pinkDet) == $GUI_CHECKED) Then
+			   $useColor[3] = true
+			EndIf
+			If (GUICtrlRead ($whiteDet) == $GUI_CHECKED) Then
+			   $useColor[4] = true
+			EndIf
+			If (GUICtrlRead ($redDet) == $GUI_CHECKED) Then
+			   $useColor[5] = true
+			EndIf
+			If (GUICtrlRead ($greenDet) == $GUI_CHECKED) Then
+			   $useColor[6] = true
+			EndIf
+			If (GUICtrlRead ($purpleDet) == $GUI_CHECKED) Then
+			   $useColor[7] = true
+			EndIf
+			If	(GUICtrlRead ($horizontalRadio) == $GUI_CHECKED) Then
+			   $pathString = "45273618"
+			ElseIf (GUICtrlRead ($verticalRadio) == $GUI_CHECKED) Then
+			   $pathString = "27453618"
+			ElseIf (GUICtrlRead ($diagonalRadio) == $GUI_CHECKED) Then
+			   $pathString = "36184527"
+			ElseIf (GUICtrlRead ($rotateRadio) == $GUI_CHECKED) Then
+			   $pathString = "14678532"
+			   $rotate = 1
+			ElseIf (GUICtrlRead ($scrambleRadio) == $GUI_CHECKED) Then
+			   $scramble = True
+			EndIf
+			If (GUICtrlRead ($showRect) == $GUI_CHECKED) Then
+			   GUICtrlSetState ($showRect, $GUI_UNCHECKED)
+			   $drawFrame = False
+			   GUIDelete ($hWin)
+			EndIf
+			GUISetState (@SW_DISABLE, $optGUI)
+			If WinExists("Processing image...") Then
+			   GUIDelete($GUI)
+			EndIf
 
-		 $GUI = GUICreate ("Processing image...", $width, $height + 20, -1, -1, $WS_CAPTION, BitOr ($WS_EX_APPWINDOW, $WS_EX_TOOLWINDOW))
-		 GUISetBkColor (0xffffff)
-		 $imageBox = GUICtrlCreatePic ($imageFile, 0, 0, $width, $height)
-		 $progress = GUICtrlCreateProgress (0, $height, $width, 20)
-		 GUISetState ()
-		 ProcessImage()
+			$GUI = GUICreate ("Processing image...", $width, $height + 20, -1, -1, $WS_CAPTION, BitOr ($WS_EX_APPWINDOW, $WS_EX_TOOLWINDOW))
+			GUISetBkColor (0xffffff)
+			$imageBox = GUICtrlCreatePic ($imageFile, 0, 0, $width, $height)
+			$progress = GUICtrlCreateProgress (0, $height, $width, 20)
+			GUISetState ()
+			ProcessImage()
+			GUICtrlSetState($showRect, $GUI_ENABLE)
+		 EndIf
    EndSwitch
 WEnd
 
 ;Functions to Create Rectangle Around Mouse with image size
 Func _GUI_Transparent_Client($iX, $iY, $iWidth, $iHeight, $iFrameWidth = 10, $iColor = 0)
+;If $iHeight >= $iWidth Then
 
-$hTGUI = GUICreate("", $iX, $iY, $iWidth, $iHeight, $WS_POPUP, $WS_EX_TOPMOST)
+;Else
+
+;EndIf
+;[0x000000, 0xc8b800, 0x007cc3, 0xe173df, 0xe1e1e1, 0x960000, 0x009600, 0x790098, 0xa19565]
+Local $AlphaKey = 0xB9B9B9
+$hTGUI = GUICreate("", $iX, $iY, $iWidth, $iHeight, $WS_POPUP, $WS_EX_TOPMOST + $WS_EX_LAYERED + $WS_EX_TRANSPARENT)
+_WinAPI_SetLayeredWindowAttributes($hTGUI, $AlphaKey, 0, $LWA_COLORKEY)
 $aPos = WinGetPos($hTGUI)
 _GuiHole($hTGUI, $iFrameWidth, $iFrameWidth, $aPos[2] - 2 * $iFrameWidth, $aPos[3] - 2 * $iFrameWidth, $aPos[2], $aPos[3])
-GUISetBkColor($iColor)
+GUISetBkColor($AlphaKey, $hTGUI)
 GUISetState()
 
 Return $hTGUI
@@ -436,10 +525,11 @@ Func _GuiHole($h_win, $i_x, $i_y, $i_sizew, $i_sizeh, $widtht, $heightt)
 Local $outer_rgn, $inner_rgn, $combined_rgn
 
 $outer_rgn = _WinAPI_CreateRectRgn(0, 0, $widtht, $heightt)
-$inner_rgn = _WinAPI_CreateRectRgn($i_x, $i_y, $i_x + $i_sizew, $i_y + $i_sizeh)
+$inner_rgn = _WinAPI_CreateRectRgn(($widtht/2 + 20), ($heightt/2 + 20), ($widtht/2 - 20), ($heightt/2 - 20))
+;$inner_rgn = _WinAPI_CreateRectRgn($i_x, $i_y, $i_x + $i_sizew, $i_y + $i_sizeh)
 $combined_rgn = _WinAPI_CreateRectRgn(0, 0, 0, 0)
 
-_WinAPI_CombineRgn($combined_rgn, $outer_rgn, $inner_rgn, $RGN_DIFF)
+_WinAPI_CombineRgn($combined_rgn, $outer_rgn, $inner_rgn, $RGN_DIFF) ;$RGN_DIFF
 
 _WinAPI_DeleteObject($outer_rgn)
 _WinAPI_DeleteObject($inner_rgn)
@@ -479,7 +569,7 @@ Func ProcessImage()
 
 		 if $checkJustBlack == False Then
 			$colorArray = CompareColor ($red, $green, $blue)
-			if ($colorArray[0] <> 0xa19565 And $colorArray[1] < 9) And ($shade > $thresholds[$colorArray[1]]) Then
+			if ($shade > $thresholds[$colorArray[1]]) Then
 			   $colorArray[0] = 0xB9B9B9
 			   $codes[$x][$y] = 0
 			   $pixels[$x][$y] = 0
@@ -534,10 +624,10 @@ EndFunc
 
 ;Color comparrison function using RGB -> XYZ -> LAB (much more accurate than using basic RGB color comparisson)
 Func CompareColor ($rVal, $gVal, $bVal)
-   Local $ToLColors[9] = [0x000000, 0xc8b800, 0x007cc3, 0xe173df, 0xe1e1e1, 0x960000, 0x009600, 0x790098, 0xa19565];Black - yellow - blue - pink - white - Red - green - purple - background
+   Local $ToLColors[8] = [0x000000, 0xc8b800, 0x007cc3, 0xe173df, 0xe1e1e1, 0x960000, 0x009600, 0x790098];Black - yellow - blue - pink - white - Red - green - purple
    For $h = 0 To 7
 	  if $useColor[$h] == False Then
-		 $ToLColors[$h] = 0xa19565
+		 $ToLColors[$h] = 0x000000
 	  EndIf
    Next
    Local $closest = 0x000000
@@ -549,7 +639,7 @@ Func CompareColor ($rVal, $gVal, $bVal)
    Local $bHold
    Local $lab1[3] = [0, 0, 0]
    Local $lab2[3] = [0, 0, 0]
-   For $i = 0 To 8
+   For $i = 0 To 7
 	  $rHold = _ColorGetRed ($ToLColors[$i])
 	  $gHold = _ColorGetGreen ($ToLColors[$i])
 	  $bHold = _ColorGetBlue ($ToLColors[$i])
@@ -995,5 +1085,22 @@ EndFunc
 ;i'm not even sure i need to bother commenting this one...
 Func Quit ()
    MouseUp ("primary")
+   UpdateConfig()
    Exit
+EndFunc
+
+Func UpdateConfig()
+   If (GUICtrlRead ($horizontalRadio) == $GUI_CHECKED) Then
+	  IniWrite($configFile, "Settings", "Pattern", "horizontal")
+   ElseIf (GUICtrlRead ($verticalRadio) == $GUI_CHECKED) Then
+	  IniWrite($configFile, "Settings", "Pattern", "vertical")
+   ElseIf (GUICtrlRead ($diagonalRadio) == $GUI_CHECKED) Then
+	  IniWrite($configFile, "Settings", "Pattern", "diagonal")
+   ElseIf (GUICtrlRead ($rotateRadio) == $GUI_CHECKED) Then
+	  IniWrite($configFile, "Settings", "Pattern", "spiral")
+   ElseIf (GUICtrlRead ($scrambleRadio) == $GUI_CHECKED) Then
+	  IniWrite($configFile, "Settings", "Pattern", "random")
+   EndIf
+   IniWrite($configFile, "Settings", "Speed", GUICtrlRead($speedInput))
+   IniWrite($configFile, "Settings", "BlackThreshold", GUICtrlRead($blackThresh))
 EndFunc
