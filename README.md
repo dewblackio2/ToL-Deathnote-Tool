@@ -1,3 +1,13 @@
+# Changelog
+
+**- Version 1.2**
+```markdown
+- Aspect ratios for images are now locked to prevent distorting images.
+- Input pattern, speed, and threshold values are now saved in a config file.
+- Tool now has an update check feature.
+- Draw image size, now displays the bitmap of the image rather than a rectangle.
+```
+
 # Throne Of Lies Deathnote Tool
 ### Created By: Dewblackio2
 
