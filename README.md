@@ -1,5 +1,17 @@
 # Changelog
 
+**- Version 1.3**
+```markdown
+- GUI Overhaul (thanks to Shrike <3)
+- More Config Options Saved
+- Grey, Orange, Teal Colors Added
+- Extreme optimizations to image processing speed
+- Option to now select background color, with tolerance to allow for images with white backgrounds to ignore background, but still contain white in the image itself
+- Donation button added for my buddy shrike, since he helped IMMENSELY with improving this project <3
+- Some minor optimizations to prevent "rouge lines" as much as possible, varries based on Computer performance
+- GUI now has minor AI logic to remeber positions it was last in and making the usage as friendly as possible
+```
+
 **- Version 1.2**
 ```markdown
 - Aspect ratios for images are now locked to prevent distorting images.
